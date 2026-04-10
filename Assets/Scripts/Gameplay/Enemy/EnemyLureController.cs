@@ -1,4 +1,5 @@
 using System;
+using IceFactory.Gameplay.Interaction;
 using IceFactory.Thermal.Core;
 using UnityEngine;
 using UnityEngine.AI;
@@ -8,7 +9,7 @@ namespace IceFactory.Gameplay.Enemy
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent))]
-    public sealed class EnemyLureController : MonoBehaviour, IThermalInteractable, IShatterableWhenFrozen
+    public sealed class EnemyLureController : MonoBehaviour, IThermalInteractable, IShatterableWhenFrozen, IPlayerInteractable
     {
         [Header("Movement")]
         [SerializeField] private EnemyPatrolRoute patrolRoute;
@@ -102,6 +103,16 @@ namespace IceFactory.Gameplay.Enemy
 
             onShattered.Invoke();
             Destroy(gameObject);
+        }
+
+        public bool CanInteract(PlayerInteractor interactor)
+        {
+            return IsFrozen;
+        }
+
+        void IPlayerInteractable.Interact(PlayerInteractor interactor)
+        {
+            TryShatter(ShatterSourceType.PlayerInteract);
         }
 
         private void UpdateStateTransitionByDistance()

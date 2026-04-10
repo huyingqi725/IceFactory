@@ -3,6 +3,7 @@ namespace IceFactory.Gameplay.Enemy
     public enum ShatterSourceType
     {
         HeavyAttack = 0,
-        IndustrialCrush = 1
+        IndustrialCrush = 1,
+        PlayerInteract = 2
     }
 }

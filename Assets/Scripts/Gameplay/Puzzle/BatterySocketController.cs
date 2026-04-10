@@ -1,4 +1,5 @@
 using System;
+using IceFactory.Gameplay.Interaction;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -6,10 +7,10 @@ namespace IceFactory.Gameplay.Puzzle
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider))]
-    public sealed class BatterySocketController : MonoBehaviour
+    public sealed class BatterySocketController : MonoBehaviour, IPlayerInteractable
     {
         [Header("Detection")]
-        [SerializeField] private bool useTriggerDetection = true;
+        [SerializeField] private bool useTriggerDetection = false;
         [SerializeField] private string batteryTag = "HeatBattery";
 
         [Header("Snap")]
@@ -62,6 +63,48 @@ namespace IceFactory.Gameplay.Puzzle
             }
 
             InsertBattery(battery);
+        }
+
+        public bool CanInteract(PlayerInteractor interactor)
+        {
+            if (interactor == null || interactor.CarryController == null)
+            {
+                return false;
+            }
+
+            var held = interactor.CarryController.HeldBattery;
+            if (_currentBattery == null)
+            {
+                return held != null;
+            }
+
+            return held == null;
+        }
+
+        void IPlayerInteractable.Interact(PlayerInteractor interactor)
+        {
+            if (interactor == null || interactor.CarryController == null)
+            {
+                return;
+            }
+
+            var carry = interactor.CarryController;
+            if (_currentBattery == null)
+            {
+                var held = carry.DetachHeldBatteryForSocket();
+                if (held != null)
+                {
+                    InsertBattery(held);
+                }
+
+                return;
+            }
+
+            var removed = EjectBattery();
+            if (removed != null)
+            {
+                carry.TryPickUp(removed);
+            }
         }
 
         public bool InsertBattery(HeatBatterySource battery)
