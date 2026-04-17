@@ -6,6 +6,7 @@ namespace IceFactory.Gameplay.Trap
     [DisallowMultipleComponent]
     [RequireComponent(typeof(TemperatureSource))]
     [RequireComponent(typeof(Collider))]
+    [RequireComponent(typeof(Rigidbody))]
     public sealed class ColdCondensePlateSource : MonoBehaviour
     {
         [Header("Cold Plate Preset")]
@@ -13,12 +14,14 @@ namespace IceFactory.Gameplay.Trap
         [SerializeField] [Min(0.01f)] private float tickInterval = 0.1f;
         [SerializeField] private LayerMask targetLayers = ~0;
         [SerializeField] private bool forceTriggerCollider = true;
+        [SerializeField] private bool forceKinematicRigidbody = true;
 
         [Header("Optional")]
         [SerializeField] private bool autoApplyOnAwake = true;
 
         private TemperatureSource _temperatureSource;
         private Collider _plateCollider;
+        private Rigidbody _rigidbody;
 
         private void Awake()
         {
@@ -61,6 +64,12 @@ namespace IceFactory.Gameplay.Trap
             {
                 _plateCollider.isTrigger = true;
             }
+
+            if (forceKinematicRigidbody && _rigidbody != null)
+            {
+                _rigidbody.isKinematic = true;
+                _rigidbody.useGravity = false;
+            }
         }
 
         private void CacheComponents()
@@ -73,6 +82,11 @@ namespace IceFactory.Gameplay.Trap
             if (_plateCollider == null)
             {
                 _plateCollider = GetComponent<Collider>();
+            }
+
+            if (_rigidbody == null)
+            {
+                _rigidbody = GetComponent<Rigidbody>();
             }
         }
     }

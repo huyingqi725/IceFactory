@@ -22,7 +22,7 @@ namespace IceFactory.Gameplay.Puzzle
             }
 
             var held = interactor.CarryController.HeldBattery;
-            return held == null || held == _battery;
+            return held == null;
         }
 
         public void Interact(PlayerInteractor interactor)
@@ -34,12 +34,6 @@ namespace IceFactory.Gameplay.Puzzle
 
             var carry = interactor.CarryController;
             var held = carry.HeldBattery;
-            if (held == _battery)
-            {
-                carry.DropHeldBattery();
-                return;
-            }
-
             if (held == null)
             {
                 carry.TryPickUp(_battery);

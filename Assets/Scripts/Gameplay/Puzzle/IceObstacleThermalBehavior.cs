@@ -26,6 +26,8 @@ namespace IceFactory.Gameplay.Puzzle
         private float _currentHeat;
         private bool _isMelted;
 
+        public bool IsMelted => _isMelted;
+
         private void Awake()
         {
             _receiver = GetComponent<ThermalReceiver>();
@@ -98,6 +100,16 @@ namespace IceFactory.Gameplay.Puzzle
             }
 
             onMelted.Invoke();
+        }
+
+        public void ForceMelt()
+        {
+            if (_isMelted)
+            {
+                return;
+            }
+
+            Melt();
         }
     }
 }

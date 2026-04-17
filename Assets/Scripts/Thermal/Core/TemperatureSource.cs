@@ -25,6 +25,7 @@ namespace IceFactory.Thermal.Core
 
         private readonly HashSet<IThermalInteractable> _cachedTargets = new HashSet<IThermalInteractable>();
         private readonly Collider[] _overlapResults = new Collider[32];
+        private readonly HashSet<IThermalInteractable> _collectBuffer = new HashSet<IThermalInteractable>();
         private float _nextTickTime;
 
         public void Configure(
@@ -110,14 +111,16 @@ namespace IceFactory.Thermal.Core
                     continue;
                 }
 
-                var interactables = hit.GetComponents<IThermalInteractable>();
-                foreach (var interactable in interactables)
+                CollectInteractables(hit, _collectBuffer);
+                foreach (var interactable in _collectBuffer)
                 {
                     if (interactable != null && interactable.CanReceiveTemperature(payload.Type))
                     {
                         interactable.OnReceiveTemperature(payload);
                     }
                 }
+
+                _collectBuffer.Clear();
             }
         }
 
@@ -148,24 +151,56 @@ namespace IceFactory.Thermal.Core
                 return;
             }
 
-            var interactables = targetComponent.GetComponents<IThermalInteractable>();
-            foreach (var interactable in interactables)
+            CollectInteractables(targetComponent, _collectBuffer);
+            foreach (var interactable in _collectBuffer)
             {
                 if (interactable != null)
                 {
                     _cachedTargets.Add(interactable);
                 }
             }
+
+            _collectBuffer.Clear();
         }
 
         private void UnregisterTarget(Component targetComponent)
         {
-            var interactables = targetComponent.GetComponents<IThermalInteractable>();
-            foreach (var interactable in interactables)
+            CollectInteractables(targetComponent, _collectBuffer);
+            foreach (var interactable in _collectBuffer)
             {
                 if (interactable != null)
                 {
                     _cachedTargets.Remove(interactable);
+                }
+            }
+
+            _collectBuffer.Clear();
+        }
+
+        private static void CollectInteractables(Component source, HashSet<IThermalInteractable> output)
+        {
+            if (source == null)
+            {
+                return;
+            }
+
+            var sameObject = source.GetComponents<IThermalInteractable>();
+            for (var i = 0; i < sameObject.Length; i++)
+            {
+                var interactable = sameObject[i];
+                if (interactable != null)
+                {
+                    output.Add(interactable);
+                }
+            }
+
+            var parents = source.GetComponentsInParent<IThermalInteractable>(true);
+            for (var i = 0; i < parents.Length; i++)
+            {
+                var interactable = parents[i];
+                if (interactable != null)
+                {
+                    output.Add(interactable);
                 }
             }
         }

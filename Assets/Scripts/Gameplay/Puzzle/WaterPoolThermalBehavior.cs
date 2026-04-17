@@ -11,7 +11,7 @@ namespace IceFactory.Gameplay.Puzzle
     {
         [Header("Freeze Settings")]
         [SerializeField] [Min(0.01f)] private float coldRequiredToFreeze = 3f;
-        [SerializeField] [Min(0.1f)] private float meltDelaySeconds = 5f;
+        [SerializeField] [Min(0.1f)] private float meltDelaySeconds = 3f;
         [SerializeField] [Min(0.02f)] private float coldSignalTimeout = 0.35f;
         [SerializeField] private bool allowHeatToUnfreeze = false;
         [SerializeField] [Min(0.01f)] private float heatRequiredToUnfreeze = 3f;

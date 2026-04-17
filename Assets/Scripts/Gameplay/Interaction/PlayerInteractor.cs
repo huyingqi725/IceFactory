@@ -87,6 +87,12 @@ namespace IceFactory.Gameplay.Interaction
 
         private void TryInteractNearest()
         {
+            var best = FindNearestInteractable();
+            best?.Interact(this);
+        }
+
+        private IPlayerInteractable FindNearestInteractable()
+        {
             var count = Physics.OverlapSphereNonAlloc(
                 interactionOrigin.position,
                 interactionRadius,
@@ -101,6 +107,11 @@ namespace IceFactory.Gameplay.Interaction
             {
                 var hit = _results[i];
                 if (hit == null)
+                {
+                    continue;
+                }
+
+                if (hit.transform.IsChildOf(transform))
                 {
                     continue;
                 }
@@ -122,7 +133,7 @@ namespace IceFactory.Gameplay.Interaction
                 bestSqr = sqr;
             }
 
-            best?.Interact(this);
+            return best;
         }
 
         private void OnDrawGizmosSelected()
