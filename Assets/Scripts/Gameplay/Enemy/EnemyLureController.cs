@@ -9,6 +9,7 @@ namespace IceFactory.Gameplay.Enemy
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(Collider))]
     public sealed class EnemyLureController : MonoBehaviour, IThermalInteractable, IShatterableWhenFrozen, IPlayerInteractable
     {
         [Header("Movement")]
@@ -30,6 +31,8 @@ namespace IceFactory.Gameplay.Enemy
         public bool IsFrozen => _state == EnemyMoveState.Frozen;
 
         private NavMeshAgent _agent;
+        private Collider _enemyCollider;
+        private Rigidbody _enemyRigidbody;
         private EnemyMoveState _state = EnemyMoveState.Patrolling;
         private Transform _currentPatrolTarget;
         private float _nextChaseRefreshTime;
@@ -38,7 +41,14 @@ namespace IceFactory.Gameplay.Enemy
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
+            _enemyCollider = GetComponent<Collider>();
+            _enemyRigidbody = GetComponent<Rigidbody>();
             _originalTag = gameObject.tag;
+
+            if (_enemyCollider == null)
+            {
+                _enemyCollider = gameObject.AddComponent<CapsuleCollider>();
+            }
 
             if (loseRadius < detectRadius)
             {
@@ -187,8 +197,16 @@ namespace IceFactory.Gameplay.Enemy
             if (_agent.enabled)
             {
                 _agent.isStopped = true;
+                _agent.velocity = Vector3.zero;
                 _agent.ResetPath();
+                _agent.nextPosition = transform.position;
                 _agent.enabled = false;
+            }
+
+            if (_enemyRigidbody != null)
+            {
+                _enemyRigidbody.velocity = Vector3.zero;
+                _enemyRigidbody.angularVelocity = Vector3.zero;
             }
 
             if (!string.IsNullOrWhiteSpace(frozenWeakPointTag))

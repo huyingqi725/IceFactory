@@ -144,6 +144,16 @@ namespace IceFactory.Thermal.Core
             UnregisterTarget(other);
         }
 
+        private void OnTriggerStay(Collider other)
+        {
+            if (!useTriggerMode)
+            {
+                return;
+            }
+
+            RegisterTarget(other);
+        }
+
         private void RegisterTarget(Component targetComponent)
         {
             if (((1 << targetComponent.gameObject.layer) & targetLayers.value) == 0)
